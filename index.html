@@ -145,7 +145,7 @@
             box-shadow: inset -1px -1px 3px rgba(0,0,0,0.5);
         }
 
-        /* Зона спиртівки із зафіксованим контейнером */
+        /* Зона спиртівки */
         .burner-zone {
             position: relative;
             height: 100px;
@@ -160,7 +160,7 @@
             border-radius: 50% 50% 10px 10px;
             position: absolute;
             top: 20px;
-            left: 0; /* Буде розраховуватись динамічно через JS */
+            left: 0;
             border: 2px solid #788ba1;
             transition: left 0.6s ease-in-out;
             display: none;
@@ -405,7 +405,7 @@
     <div id="scr-exp2" class="screen">
         <h3>ДОСЛІД № 2. Порівняння окисних властивостей сполук Cr(VI), Mo(VI) і W(VI)</h3>
         <div class="step-instruction" id="exp2-guide">
-            <strong>Крок 1:</strong> У штативі містяться розчини солей: №1 K<sub>2</sub>Cr<sub>2</sub>O<sub>7</sub> (помаранчевий), №2 Na<sub>2</sub>MoO<sub>4</sub> (безбарвний), №3 Na<sub>2</sub>WO<sub>4</sub> (безбарвний). Оберіть реактив "KI" та додайте його по черзі в кожну пробірку.
+            <strong>Крок 1 (Створення середовища):</strong> У штативі містяться вихідні розчини солей: №1 K<sub>2</sub>Cr<sub>2</sub>O<sub>7</sub> (помаранчевий), №2 Na<sub>2</sub>MoO<sub>4</sub> (безбарвний), №3 Na<sub>2</sub>WO<sub>4</sub> (безбарвний). Оберіть реактив "H<sub>2</sub>SO<sub>4</sub>" та підкисліть кожну пробірку.
         </div>
 
         <div class="lab-bench">
@@ -413,19 +413,19 @@
                 <div class="tube-wrapper" id="e2-w1">
                     <div class="tube-title" id="e2-t1-title">1: K<sub>2</sub>Cr<sub>2</sub>O<sub>7</sub></div>
                     <div class="test-tube" id="e2-tube1" onclick="interactTube2(1)">
-                        <div class="liquid" id="e2-liq1" style="height: 50%; background-color: rgba(255, 140, 0, 0.65);"></div>
+                        <div class="liquid" id="e2-liq1" style="height: 45%; background-color: rgba(255, 140, 0, 0.65);"></div>
                     </div>
                 </div>
                 <div class="tube-wrapper" id="e2-w2">
                     <div class="tube-title" id="e2-t2-title">2: Na<sub>2</sub>MoO<sub>4</sub></div>
                     <div class="test-tube" id="e2-tube2" onclick="interactTube2(2)">
-                        <div class="liquid" id="e2-liq2" style="height: 50%; background-color: rgba(245, 245, 245, 0.5);"></div>
+                        <div class="liquid" id="e2-liq2" style="height: 45%; background-color: rgba(245, 245, 245, 0.5);"></div>
                     </div>
                 </div>
                 <div class="tube-wrapper" id="e2-w3">
                     <div class="tube-title" id="e2-t3-title">3: Na<sub>2</sub>WO<sub>4</sub></div>
                     <div class="test-tube" id="e2-tube3" onclick="interactTube2(3)">
-                        <div class="liquid" id="e2-liq3" style="height: 50%; background-color: rgba(245, 245, 245, 0.5);"></div>
+                        <div class="liquid" id="e2-liq3" style="height: 45%; background-color: rgba(245, 245, 245, 0.5);"></div>
                     </div>
                 </div>
             </div>
@@ -439,7 +439,8 @@
 
         <div class="controls">
             <div class="tool-rack" id="tools-e2">
-                <button class="interactive-btn" id="tool-ki" onclick="selectTool2('ki')">🧪 Додати розчин KI</button>
+                <button class="interactive-btn" id="tool-h2so4-e2" onclick="selectTool2('h2so4_e2')">💧 Підкислити розбавленою H<sub>2</sub>SO<sub>4</sub></button>
+                <button class="interactive-btn" id="tool-ki" onclick="selectTool2('ki')" disabled>🧪 Додати розчин KI</button>
                 <button class="interactive-btn" id="tool-boil" onclick="selectTool2('boil')" disabled>🔥 Взяти спиртівку (натисніть на пробірку 2 або 3)</button>
             </div>
 
@@ -447,9 +448,9 @@
                 <label><strong>Завдання на спостереження:</strong> Оберіть правильний висновок про зміну окисних властивостей елементів у ряду Cr(VI) – Mo(VI) – W(VI):</label>
                 <select id="ans-e2">
                     <option value="">-- Оберіть правильний науковий висновок --</option>
-                    <option value="correct">Окисна здатність сполук зі ступенем окиснення +6 зменшується зверху вниз. Cr(VI) реагує миттєво на холоді, Mo(VI) відновлюється лише при кипінні, а W(VI) не реагує навіть при нагріванні.</option>
+                    <option value="correct">Окисна здатність сполук зі ступенем окиснення +6 зменшується зверху вниз. У кислому середовищі Cr(VI) реагує миттєво на холоді, Mo(VI) відновлюється лише при кипінні, а W(VI) не реагує навіть при нагріванні.</option>
                     <option value="wrong1">Стійкість вищого ступеня окиснення зменшується до вольфраму, тому сполука W(VI) є найсильнішим окисником.</option>
-                    <option value="wrong2">Усі три сполуки однаково легко відновлюються розчином калій йодиду на холоді.</option>
+                    <option value="wrong2">Усі три підкислені сполуки однаково легко відновлюються розчином калій йодиду на холоді.</option>
                 </select>
                 <br>
                 <button class="action-btn" onclick="submitExp2()">Завершити роботу та згенерувати звіт</button>
@@ -477,6 +478,9 @@
 
     let tubeMetals = [false, false, false];
     let tubeAcids = [false, false, false];
+    
+    // Стани для досліду 2
+    let e2H2SO4Added = [false, false, false];
     let kiAdded = [false, false, false];
     let e2Heated = [false, false];
 
@@ -496,13 +500,10 @@
         setProgress(33);
     }
 
-    // Розрахунок позиції лампи строго всередині контейнера
     function moveLampToTube(lampId, tubeWrapperId, showFire = true) {
         const lamp = document.getElementById(lampId);
         const wrapper = document.getElementById(tubeWrapperId);
-        
         lamp.style.display = 'block';
-        // Рахуємо позицію відносно батьківського елемента стійки
         const targetLeft = wrapper.offsetLeft + (wrapper.offsetWidth / 2) - (lamp.offsetWidth / 2);
         lamp.style.left = targetLeft + "px";
 
@@ -594,7 +595,6 @@
         document.getElementById('tool-burn').disabled = true;
         selectTool('');
 
-        // Нагріваємо Пробірку №1
         moveLampToTube('lamp1', 'w1', true);
         setTimeout(() => {
             createBubbles('bub1', 22);
@@ -602,7 +602,6 @@
             document.getElementById(`t1-title`).innerHTML = "1: Cr + HCl + t°<br>(Інтенсивне виділення H<sub>2</sub>↑)";
         }, 1500);
 
-        // Переносимо лапму під Пробірку №2
         setTimeout(() => {
             moveLampToTube('lamp1', 'w2', true);
         }, 3500);
@@ -613,7 +612,6 @@
             document.getElementById(`t2-title`).innerHTML = "2: Cr + H<sub>2</sub>SO<sub>4</sub> + t°<br>(Інтенсивне виділення H<sub>2</sub>↑)";
         }, 5000);
 
-        // Переносимо лапму під Пробірку №3
         setTimeout(() => {
             moveLampToTube('lamp1', 'w3', true);
         }, 7000);
@@ -628,7 +626,7 @@
         }, 8500);
     }
 
-    // --- ДОСЛІД 2 ---
+    // --- ДОСЛІД 2 (МОДЕРНІЗОВАНИЙ СЦЕНАРІЙ) ---
     function selectTool2(tool) {
         activeTool2 = tool;
         document.querySelectorAll('#tools-e2 .interactive-btn').forEach(b => b.classList.remove('active-tool'));
@@ -640,54 +638,86 @@
     function interactTube2(num) {
         const idx = num - 1;
         
-        if(activeTool2 === 'ki') {
+        // КРОК А: ПІДКИСЛЕННЯ СУЛЬФАТНОЮ КИСЛОТОЮ
+        if(activeTool2 === 'h2so4_e2') {
+            if(e2H2SO4Added[idx]) return;
+            e2H2SO4Added[idx] = true;
+            
+            // Збільшуємо рівень рідини, імітуючи доливання кислоти
+            const liq = document.getElementById(`e2-liq${num}`);
+            liq.style.height = '55%'; 
+
+            if(num === 1) document.getElementById('e2-t1-title').innerHTML = "1: K<sub>2</sub>Cr<sub>2</sub>O<sub>7</sub> + H<sub>2</sub>SO<sub>4</sub>";
+            if(num === 2) document.getElementById('e2-t2-title').innerHTML = "2: Na<sub>2</sub>MoO<sub>4</sub> + H<sub>2</sub>SO<sub>4</sub>";
+            if(num === 3) document.getElementById('e2-t3-title').innerHTML = "3: Na<sub>2</sub>WO<sub>4</sub> + H<sub>2</sub>SO<sub>4</sub>";
+
+            if(e2H2SO4Added.every(v => v === true)) {
+                document.getElementById('tool-h2so4-e2').disabled = true;
+                document.getElementById('tool-ki').disabled = false;
+                selectTool2('');
+                document.getElementById('exp2-guide').innerHTML = `<strong>Крок 2 (Відновлення):</strong> Розчини успішно підкислено сульфатною кислотою. Тепер оберіть реактив <strong>"🧪 Додати розчин KI"</strong> та по черзі внесіть його в кожну пробірку.`;
+            }
+        }
+        // КРОК Б: ДОДАВАННЯ КАЛІЙ ЙОДИДУ
+        else if(activeTool2 === 'ki') {
+            if(!e2H2SO4Added[idx]) {
+                alert("Спочатку потрібно підкислити розчин солі!");
+                return;
+            }
             if(kiAdded[idx]) return;
             kiAdded[idx] = true;
 
+            const liq = document.getElementById(`e2-liq${num}`);
+            liq.style.height = '65%';
+
             if(num === 1) {
-                document.getElementById('e2-liq1').style.backgroundColor = 'rgba(122, 63, 11, 0.85)'; 
-                document.getElementById('e2-t1-title').innerHTML = "1: K<sub>2</sub>Cr<sub>2</sub>O<sub>7</sub> + KI<br>(Миттєва реакція на холоді)";
+                // В кислому середовищі дихромат миттєво окиснює I- до вільного йоду (буре забарвлення)
+                liq.style.backgroundColor = 'rgba(122, 63, 11, 0.85)'; 
+                document.getElementById('e2-t1-title').innerHTML = "1: K<sub>2</sub>Cr<sub>2</sub>O<sub>7</sub> + H<sub>2</sub>SO<sub>4</sub> + KI<br>(Миттєве виділення I<sub>2</sub> на холоді)";
             } else if(num === 2) {
-                document.getElementById('e2-t2-title').innerHTML = "2: Na<sub>2</sub>MoO<sub>4</sub> + KI<br>(На холоді без змін)";
+                document.getElementById('e2-t2-title').innerHTML = "2: Na<sub>2</sub>MoO<sub>4</sub> + H<sub>2</sub>SO<sub>4</sub> + KI<br>(На холоді без видимих змін)";
             } else if(num === 3) {
-                document.getElementById('e2-t3-title').innerHTML = "3: Na<sub>2</sub>WO<sub>4</sub> + KI<br>(На холоді без змін)";
+                document.getElementById('e2-t3-title').innerHTML = "3: Na<sub>2</sub>WO<sub>4</sub> + H<sub>2</sub>SO<sub>4</sub> + KI<br>(На холоді без видимих змін)";
             }
 
             if(kiAdded.every(v => v === true)) {
                 document.getElementById('tool-ki').disabled = true;
                 document.getElementById('tool-boil').disabled = false;
                 selectTool2('');
-                document.getElementById('exp2-guide').innerHTML = `<strong>Крок 2 (Нагрівання солей):</strong> Активуйте інструмент <strong>"🔥 Взяти спиртівку"</strong> і клікніть спочатку на пробірку №2, а потім на пробірку №3 для їх нагрівання.`;
+                document.getElementById('exp2-guide').innerHTML = `<strong>Крок 3 (Термічна активація):</strong> Реактив KI додано. Спостерігаємо виділення йоду в першій пробірці. Тепер оберіть інструмент <strong>"🔥 Взяти спиртівку"</strong> та клікніть по черзі на пробірку №2, а потім №3 для їх нагрівання до кипіння.`;
             }
         }
+        // КРОК В: ІНТЕРАКТИВНЕ НАГРІВАННЯ
         else if(activeTool2 === 'boil') {
             if(num === 1) {
-                alert("Пробірка №1 вже зреагувала на холоді, нагрійте пробірки №2 або №3!");
+                alert("Пробірка №1 вже зреагувала на холоді, піднесіть спиртівку до пробірок №2 або №3!");
                 return;
             }
             
             if(num === 2 && !e2Heated[0]) {
                 e2Heated[0] = true;
                 moveLampToTube('lamp2', 'e2-w2', true);
-                document.getElementById('exp2-guide').innerHTML = `<em>Нагріваємо розчин Na<sub>2</sub>MoO<sub>4</sub>... Чекайте закипання.</em>`;
+                document.getElementById('exp2-guide').innerHTML = `<em>Нагріваємо підкислений розчин Na<sub>2</sub>MoO<sub>4</sub> з KI до кипіння...</em>`;
                 
                 setTimeout(() => {
+                    // Утворення інтенсивного синього забарвлення (молібденова синь)
                     document.getElementById('e2-liq2').style.backgroundColor = 'rgba(34, 85, 143, 0.85)'; 
-                    document.getElementById('e2-t2-title').innerHTML = "2: Na<sub>2</sub>MoO<sub>4</sub> + KI + t°<br>(Відновлення до молібденової сині)";
+                    document.getElementById('e2-t2-title').innerHTML = "2: Na<sub>2</sub>MoO<sub>4</sub> + H<sub>2</sub>SO<sub>4</sub> + KI + t°<br>(Кипіння: відновлення до молібденової сині)";
                     checkE2HeatingStatus();
                 }, 3000);
             } 
             else if(num === 3 && !e2Heated[1]) {
                 if(!e2Heated[0]) {
-                    alert("Проведіть дослідження послідовно: спочатку нагрійте пробірку №2!");
+                    alert("Проведіть дослідження систематично: спочатку нагрійте пробірку №2!");
                     return;
                 }
                 e2Heated[1] = true;
                 moveLampToTube('lamp2', 'e2-w3', true);
-                document.getElementById('exp2-guide').innerHTML = `<em>Нагріваємо розчин Na<sub>2</sub>WO<sub>4</sub>... Чекайте закипання.</em>`;
+                document.getElementById('exp2-guide').innerHTML = `<em>Нагріваємо підкислений розчин Na<sub>2</sub>WO<sub>4</sub> з KI до кипіння...</em>`;
                 
                 setTimeout(() => {
-                    document.getElementById('e2-t3-title').innerHTML = "3: Na<sub>2</sub>WO<sub>4</sub> + KI + t°<br>(Стійкий, змін НЕМАЄ)";
+                    // Змін немає, вольфрам стійкий
+                    document.getElementById('e2-t3-title').innerHTML = "3: Na<sub>2</sub>WO<sub>4</sub> + H<sub>2</sub>SO<sub>4</sub> + KI + t°<br>(Кипіння: стійкий, колір без змін)";
                     document.getElementById('fire2').style.display = 'none';
                     document.getElementById('lamp2').style.display = 'none';
                     checkE2HeatingStatus();
@@ -698,13 +728,13 @@
 
     function checkE2HeatingStatus() {
         if(e2Heated[0] && !e2Heated[1]) {
-            document.getElementById('exp2-guide').innerHTML = `<strong>Крок 3:</strong> Тепер клікніть на <strong>Пробірку №3</strong>, щоб перенести спиртівку та перевірити стійкість вольфрамату до відновлення.`;
+            document.getElementById('exp2-guide').innerHTML = `<strong>Крок 4:</strong> Тепер клікніть на <strong>Пробірку №3</strong>, щоб перенести туди спиртівку та перевірити стійкість вольфрамату при кипінні.`;
         }
         else if(e2Heated[0] && e2Heated[1]) {
             document.getElementById('tool-boil').disabled = true;
             selectTool2('');
             document.getElementById('q-box-e2').style.display = 'block';
-            document.getElementById('exp2-guide').innerHTML = `<strong>Крок 4:</strong> Експеримент завершено. Проаналізуйте стійкість солей та оберіть висновок.`;
+            document.getElementById('exp2-guide').innerHTML = `<strong>Крок 5:</strong> Експеримент завершено. Проаналізуйте стійкість солей у кислому середовищі та оберіть підсумковий висновок.`;
         }
     }
 
@@ -757,16 +787,18 @@
         r += `   - У нітратній кислоті хром стійко пасивується, тому навіть під дією\n`;
         r += `     полум'я спиртівки реакція не відбувається і газ НЕ виділяється.\n\n`;
         r += `2. Порівняння окисних властивостей сполук Cr(VI), Mo(VI) і W(VI) (Дослід 2):\n`;
-        r += `   - Сполуки Cr(VI) є сильними окисниками й миттєво реагують з KI на холоді,\n`;
-        r += `     забарвлюючи розчин у темно-бурий колір через виділення вільного йоду (I2):\n`;
+        r += `   - Усі розчини попередньо підкислюють розбавленою сульфатною кислотою (H2SO4).\n`;
+        r += `   - Сполуки Cr(VI) у кислому середовищі є потужними окисниками й миттєво\n`;
+        r += `     реагують з KI на холоді, виділяючи вільний йод (I2) та змінюючи колір розчину:\n`;
         r += `     Cr2O7(2-) + 6I(-) + 14H(+) ===> 2Cr(3+) + 3I2 + 7H2O\n`;
-        r += `   - Сполуки Mo(VI) стійкіші, тому реакція відновлення відбувається лише\n`;
-        r += `     при безпосередньому кип'ятінні суміші над спиртівкою (утворюється синя синь).\n`;
-        r += `   - Сполуки W(VI) мають максимальну стабільність ступеня окиснення +6,\n`;
-        r += `     тому при нагріванні розчин залишається прозорим (реакція з KI не йде).\n\n`;
+        r += `   - Сполуки Mo(VI) є стійкішими окисниками, тому реакція відновлення\n`;
+        r += `     відбувається лише при доведенні суміші до кипіння над спиртівкою,\n`;
+        r += `     що супроводжується появою інтенсивного синього забарвлення молібденової сині.\n`;
+        r += `   - Сполуки W(VI) мають максимальну стабільність ступеня окиснення +6 і у\n`;
+        r += `     кислому середовищі не відновлюються розчином KI навіть при тривалому кип'ятінні.\n\n`;
         r += `ВИСНОВОК: У підгрупі хрому (VIB група) зі збільшенням атомної маси елемента\n`;
         r += `стійкість його вищого ступеня окиснення (+6) закономірно зростає, а окисна\n`;
-        r += `здатність сполук Е(VI) відповідно послаблюється від хрому до вольфраму.\n`;
+        r += `здатність сполук Е(VI) у кислому середовищі відповідно послаблюється від хрому до вольфраму.\n`;
         r += `========================================================================\n`;
 
         document.getElementById('report-text').innerText = r;
