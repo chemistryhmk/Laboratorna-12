@@ -1,0 +1,777 @@
+<!DOCTYPE html>
+<html lang="uk">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Віртуальний лабораторний тренажер № 12</title>
+    <style>
+        :root {
+            --bg-color: #fdfaf2;
+            --panel-bg: #f4efe2;
+            --text-color: #2b261f;
+            --accent-color: #8c2d19;
+            --border-color: #d1c7bd;
+            --success-color: #2e6f40;
+        }
+
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            background-color: var(--bg-color);
+            color: var(--text-color);
+            margin: 0;
+            padding: 20px;
+            font-size: 20px;
+            line-height: 1.6;
+        }
+
+        .container {
+            max-width: 1050px;
+            margin: 0 auto;
+            background: var(--panel-bg);
+            padding: 35px;
+            border-radius: 12px;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.06);
+            border: 1px solid var(--border-color);
+        }
+
+        h1 { font-size: 30px; color: var(--accent-color); text-align: center; margin-bottom: 5px; font-weight: 700; }
+        h2 { font-size: 24px; color: var(--text-color); text-align: center; margin-top: 5px; margin-bottom: 25px; }
+        h3 { font-size: 22px; color: var(--accent-color); border-bottom: 2px solid var(--border-color); padding-bottom: 10px; }
+
+        .screen { display: none; }
+        .screen.active { display: block; }
+
+        .progress-bar {
+            height: 10px;
+            background-color: var(--border-color);
+            width: 100%;
+            border-radius: 5px;
+            margin-bottom: 25px;
+            overflow: hidden;
+        }
+        .progress-fill {
+            height: 100%;
+            background-color: var(--success-color);
+            width: 0%;
+            transition: width 0.4s ease;
+        }
+
+        /* Лабораторний стіл */
+        .lab-bench {
+            background: #ffffff;
+            border: 2px solid var(--border-color);
+            border-radius: 12px;
+            padding: 30px;
+            margin: 20px 0;
+            min-height: 460px;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-start;
+            position: relative;
+            box-shadow: inset 0 0 15px rgba(0,0,0,0.02);
+        }
+
+        /* Штатив з пробірками */
+        .rack {
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            gap: 120px;
+            margin-top: 20px;
+            border-bottom: 4px solid #8b7d70;
+            padding-bottom: 10px;
+            position: relative;
+            z-index: 2;
+        }
+
+        .tube-wrapper {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            width: 140px;
+            position: relative;
+        }
+
+        .tube-title {
+            font-size: 15px;
+            font-weight: bold;
+            text-align: center;
+            margin-bottom: 15px;
+            min-height: 55px;
+            color: #4a423a;
+            line-height: 1.3;
+        }
+
+        .test-tube {
+            width: 45px;
+            height: 220px;
+            border: 3px solid #b0c4de;
+            border-bottom-left-radius: 25px;
+            border-bottom-right-radius: 25px;
+            position: relative;
+            background: rgba(255, 255, 255, 0.4);
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: center;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .test-tube:hover {
+            transform: scale(1.03);
+        }
+
+        .liquid {
+            width: 100%;
+            height: 0%;
+            border-bottom-left-radius: 20px;
+            border-bottom-right-radius: 20px;
+            transition: height 1s ease, background-color 1s ease;
+            position: relative;
+            overflow: hidden;
+            z-index: 1;
+        }
+
+        .metal-granules {
+            position: absolute;
+            bottom: 3px;
+            width: 24px;
+            height: 12px;
+            background: #7a8285;
+            border-radius: 3px;
+            display: none;
+            z-index: 5;
+            box-shadow: inset -1px -1px 3px rgba(0,0,0,0.5);
+        }
+
+        /* Зона спиртівки із зафіксованим контейнером */
+        .burner-zone {
+            position: relative;
+            height: 100px;
+            margin-top: 10px; 
+            width: 100%;
+        }
+
+        .spirit-lamp {
+            width: 70px;
+            height: 50px;
+            background: #a1b5cb;
+            border-radius: 50% 50% 10px 10px;
+            position: absolute;
+            top: 20px;
+            left: 0; /* Буде розраховуватись динамічно через JS */
+            border: 2px solid #788ba1;
+            transition: left 0.6s ease-in-out;
+            display: none;
+            z-index: 3;
+        }
+
+        .spirit-lamp::before {
+            content: '';
+            position: absolute;
+            top: -12px;
+            left: 23px;
+            width: 20px;
+            height: 12px;
+            background: #566473;
+            border-radius: 3px;
+        }
+
+        .wick-fire {
+            width: 18px;
+            height: 35px;
+            background: radial-gradient(circle at bottom, #ffea00 20%, #ff5100 90%);
+            border-radius: 50% 50% 20% 20%;
+            position: absolute;
+            top: -45px;
+            left: 24px;
+            display: none;
+            animation: flicker 0.1s infinite alternate;
+            box-shadow: 0 0 15px rgba(255,81,0,0.7);
+        }
+
+        @keyframes flicker {
+            0% { transform: scaleX(0.9) rotate(-1deg); }
+            100% { transform: scaleX(1.1) rotate(1deg); }
+        }
+
+        /* Анімація газу */
+        .bubbles {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            bottom: 0;
+            left: 0;
+            display: none;
+            z-index: 2;
+        }
+
+        .bubble {
+            position: absolute;
+            background: rgba(255,255,255,0.85);
+            border-radius: 50%;
+            bottom: 5px;
+            animation: bubbleUp 0.7s infinite linear;
+        }
+
+        @keyframes bubbleUp {
+            0% { transform: translateY(0) scale(0.4); opacity: 1; left: var(--b-l); }
+            100% { transform: translateY(-120px) scale(1.1); opacity: 0; left: var(--b-l); }
+        }
+
+        /* Панель інструментів */
+        .controls {
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 8px;
+            border: 1px solid var(--border-color);
+            margin-top: 20px;
+        }
+
+        .tool-rack {
+            display: flex;
+            justify-content: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            flex-wrap: wrap;
+        }
+
+        .interactive-btn {
+            font-size: 18px;
+            padding: 10px 20px;
+            background-color: #fcfbfa;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+        }
+        .interactive-btn:hover {
+            border-color: var(--accent-color);
+            background-color: #fff4f2;
+        }
+        .interactive-btn.active-tool {
+            background-color: var(--accent-color);
+            color: white;
+            border-color: var(--accent-color);
+        }
+
+        .step-instruction {
+            background: #fff8eb;
+            border-left: 6px solid var(--accent-color);
+            padding: 15px;
+            margin-bottom: 20px;
+            font-weight: 500;
+        }
+
+        .question-box {
+            background: #eef7f0;
+            border-left: 6px solid var(--success-color);
+            padding: 20px;
+            margin-top: 20px;
+            border-radius: 4px;
+        }
+
+        select, input[type="text"] {
+            font-size: 19px;
+            padding: 10px;
+            border-radius: 6px;
+            border: 2px solid var(--border-color);
+            margin-top: 10px;
+            width: 100%;
+            box-sizing: border-box;
+        }
+
+        button.action-btn {
+            font-size: 20px;
+            padding: 12px 28px;
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: bold;
+            margin-top: 15px;
+        }
+        button.action-btn:hover { background-color: #aa3a22; }
+
+        #report-text {
+            background: white;
+            padding: 25px;
+            border: 2px solid var(--border-color);
+            border-radius: 6px;
+            font-family: 'Courier New', monospace;
+            white-space: pre-wrap;
+            font-size: 18px;
+        }
+
+        sub {
+            font-size: 13px;
+            bottom: -0.25em;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <h1>ЛАБОРАТОРНА РОБОТА № 12</h1>
+    <h2>Тема: Дослідження властивостей хрому, молібдену, вольфраму та їх сполук</h2>
+    
+    <div class="progress-bar">
+        <div class="progress-fill" id="labProgress"></div>
+    </div>
+
+    <div id="scr-auth" class="screen active">
+        <div class="step-instruction">
+            <strong>Мета роботи:</strong> Дослідити хімічні властивості хрому, молібдену, вольфраму та їх сполук.<br>
+            <strong>Реактиви:</strong> Cr (мет.), розчини HCl, H<sub>2</sub>SO<sub>4</sub>, HNO<sub>3</sub>, K<sub>2</sub>Cr<sub>2</sub>O<sub>7</sub>, Na<sub>2</sub>MoO<sub>4</sub>, Na<sub>2</sub>WO<sub>4</sub>, KI.
+        </div>
+        <div style="text-align: center; margin-top: 40px;">
+            <label style="font-size: 22px; font-weight: bold;">Введіть ваше Прізвище та Ім'я для початку роботи:</label>
+            <input type="text" id="studName" style="max-width: 450px; text-align: center;" placeholder="Іваненко Олександр">
+            <br><br>
+            <button class="action-btn" onclick="initLab()">Увійти до лабораторії</button>
+        </div>
+    </div>
+
+    <div id="scr-exp1" class="screen">
+        <h3>ДОСЛІД № 1. Взаємодія хрому з кислотами</h3>
+        <div class="step-instruction" id="exp1-guide">
+            <strong>Крок 1. Додавання металу:</strong> Оберіть інструмент "Шматочки Cr" і послідовно клікніть на кожну з трьох пробірок, щоб кинути туди метал.
+        </div>
+
+        <div class="lab-bench">
+            <div class="rack" id="rack1">
+                <div class="tube-wrapper" id="w1">
+                    <div class="tube-title" id="t1-title">Пробірка № 1</div>
+                    <div class="test-tube" id="tube1" onclick="interactTube(1)">
+                        <div class="liquid" id="liq1">
+                            <div class="bubbles" id="bub1"></div>
+                        </div>
+                        <div class="metal-granules" id="metal1"></div>
+                    </div>
+                </div>
+                <div class="tube-wrapper" id="w2">
+                    <div class="tube-title" id="t2-title">Пробірка № 2</div>
+                    <div class="test-tube" id="tube2" onclick="interactTube(2)">
+                        <div class="liquid" id="liq2">
+                            <div class="bubbles" id="bub2"></div>
+                        </div>
+                        <div class="metal-granules" id="metal2"></div>
+                    </div>
+                </div>
+                <div class="tube-wrapper" id="w3">
+                    <div class="tube-title" id="t3-title">Пробірка № 3</div>
+                    <div class="test-tube" id="tube3" onclick="interactTube(3)">
+                        <div class="liquid" id="liq3">
+                            <div class="bubbles" id="bub3"></div>
+                        </div>
+                        <div class="metal-granules" id="metal3"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="burner-zone">
+                <div class="spirit-lamp" id="lamp1">
+                    <div class="wick-fire" id="fire1"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="tool-rack" id="tools-e1">
+                <button class="interactive-btn" id="tool-cr" onclick="selectTool('cr')">🧪 Шматочки Cr</button>
+                <button class="interactive-btn" id="tool-hcl" onclick="selectTool('hcl')" disabled>💧 Додати розчин HCl</button>
+                <button class="interactive-btn" id="tool-h2so4" onclick="selectTool('h2so4')" disabled>💧 Додати розчин H<sub>2</sub>SO<sub>4</sub></button>
+                <button class="interactive-btn" id="tool-hno3" onclick="selectTool('hno3')" disabled>💧 Додати розчин HNO<sub>3</sub></button>
+                <button class="interactive-btn" id="tool-burn" onclick="selectTool('burn')" disabled>🔥 Запалити спиртівку та послідовно нагріти</button>
+            </div>
+
+            <div class="question-box" id="q-box-e1" style="display: none;">
+                <label><strong>Завдання на спостереження:</strong> Які процеси відбулися з хромом у пробірках на холоді та при послідовному нагріванні?</label>
+                <select id="ans-e1">
+                    <option value="">-- Оберіть правильну відповідь --</option>
+                    <option value="correct">На холоді реакція відсутня через пасивацію. При нагріванні в HCl та H2SO4 йде інтенсивне виділення газу (H2) з утворенням зеленого розчину. В HNO3 хром залишається пасивним і газ не виділяється.</option>
+                    <option value="wrong1">Хром реагує з усіма кислотами однаково швидко на холоді, виділяючи густий бурий газ.</option>
+                    <option value="wrong2">При нагріванні розчиняється лише метал у нітратній кислоті, а хлоридна й сульфатна не взаємодіють.</option>
+                </select>
+                <br>
+                <button class="action-btn" onclick="submitExp1()">Підтвердити та перейти до Досліду № 2</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="scr-exp2" class="screen">
+        <h3>ДОСЛІД № 2. Порівняння окисних властивостей сполук Cr(VI), Mo(VI) і W(VI)</h3>
+        <div class="step-instruction" id="exp2-guide">
+            <strong>Крок 1:</strong> У штативі містяться розчини солей: №1 K<sub>2</sub>Cr<sub>2</sub>O<sub>7</sub> (помаранчевий), №2 Na<sub>2</sub>MoO<sub>4</sub> (безбарвний), №3 Na<sub>2</sub>WO<sub>4</sub> (безбарвний). Оберіть реактив "KI" та додайте його по черзі в кожну пробірку.
+        </div>
+
+        <div class="lab-bench">
+            <div class="rack" id="rack2">
+                <div class="tube-wrapper" id="e2-w1">
+                    <div class="tube-title" id="e2-t1-title">1: K<sub>2</sub>Cr<sub>2</sub>O<sub>7</sub></div>
+                    <div class="test-tube" id="e2-tube1" onclick="interactTube2(1)">
+                        <div class="liquid" id="e2-liq1" style="height: 50%; background-color: rgba(255, 140, 0, 0.65);"></div>
+                    </div>
+                </div>
+                <div class="tube-wrapper" id="e2-w2">
+                    <div class="tube-title" id="e2-t2-title">2: Na<sub>2</sub>MoO<sub>4</sub></div>
+                    <div class="test-tube" id="e2-tube2" onclick="interactTube2(2)">
+                        <div class="liquid" id="e2-liq2" style="height: 50%; background-color: rgba(245, 245, 245, 0.5);"></div>
+                    </div>
+                </div>
+                <div class="tube-wrapper" id="e2-w3">
+                    <div class="tube-title" id="e2-t3-title">3: Na<sub>2</sub>WO<sub>4</sub></div>
+                    <div class="test-tube" id="e2-tube3" onclick="interactTube2(3)">
+                        <div class="liquid" id="e2-liq3" style="height: 50%; background-color: rgba(245, 245, 245, 0.5);"></div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="burner-zone">
+                <div class="spirit-lamp" id="lamp2">
+                    <div class="wick-fire" id="fire2"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="controls">
+            <div class="tool-rack" id="tools-e2">
+                <button class="interactive-btn" id="tool-ki" onclick="selectTool2('ki')">🧪 Додати розчин KI</button>
+                <button class="interactive-btn" id="tool-boil" onclick="selectTool2('boil')" disabled>🔥 Взяти спиртівку (натисніть на пробірку 2 або 3)</button>
+            </div>
+
+            <div class="question-box" id="q-box-e2" style="display: none;">
+                <label><strong>Завдання на спостереження:</strong> Оберіть правильний висновок про зміну окисних властивостей елементів у ряду Cr(VI) – Mo(VI) – W(VI):</label>
+                <select id="ans-e2">
+                    <option value="">-- Оберіть правильний науковий висновок --</option>
+                    <option value="correct">Окисна здатність сполук зі ступенем окиснення +6 зменшується зверху вниз. Cr(VI) реагує миттєво на холоді, Mo(VI) відновлюється лише при кипінні, а W(VI) не реагує навіть при нагріванні.</option>
+                    <option value="wrong1">Стійкість вищого ступеня окиснення зменшується до вольфраму, тому сполука W(VI) є найсильнішим окисником.</option>
+                    <option value="wrong2">Усі три сполуки однаково легко відновлюються розчином калій йодиду на холоді.</option>
+                </select>
+                <br>
+                <button class="action-btn" onclick="submitExp2()">Завершити роботу та згенерувати звіт</button>
+            </div>
+        </div>
+    </div>
+
+    <div id="scr-report" class="screen">
+        <h3>ОФІЦІЙНИЙ ЛАБОРАТОРНИЙ ПРОТОКОЛ СТУДЕНТА</h3>
+        <div class="step-instruction" style="border-left-color: var(--success-color);">
+            Усі дослідження успішно виконано. Нижче сформовано ваш підсумковий документ. Його можна роздрукувати або зберегти в PDF.
+        </div>
+        <div id="report-text"></div>
+        <div style="text-align: center; margin-top: 25px;">
+            <button class="action-btn" onclick="window.print()">Зберегти протокол у PDF / Друк</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    let currentStudent = "";
+    let score = 0;
+    let activeTool = "";
+    let activeTool2 = "";
+
+    let tubeMetals = [false, false, false];
+    let tubeAcids = [false, false, false];
+    let kiAdded = [false, false, false];
+    let e2Heated = [false, false];
+
+    function setProgress(pct) {
+        document.getElementById('labProgress').style.width = pct + '%';
+    }
+
+    function initLab() {
+        const name = document.getElementById('studName').value.trim();
+        if(!name) {
+            alert("Будь ласка, введіть своє Прізвище та Ім'я!");
+            return;
+        }
+        currentStudent = name;
+        document.getElementById('scr-auth').classList.remove('active');
+        document.getElementById('scr-exp1').classList.add('active');
+        setProgress(33);
+    }
+
+    // Розрахунок позиції лампи строго всередині контейнера
+    function moveLampToTube(lampId, tubeWrapperId, showFire = true) {
+        const lamp = document.getElementById(lampId);
+        const wrapper = document.getElementById(tubeWrapperId);
+        
+        lamp.style.display = 'block';
+        // Рахуємо позицію відносно батьківського елемента стійки
+        const targetLeft = wrapper.offsetLeft + (wrapper.offsetWidth / 2) - (lamp.offsetWidth / 2);
+        lamp.style.left = targetLeft + "px";
+
+        const fire = lamp.querySelector('.wick-fire');
+        if (showFire) {
+            fire.style.display = 'block';
+        } else {
+            fire.style.display = 'none';
+        }
+    }
+
+    // --- ДОСЛІД 1 ---
+    function selectTool(tool) {
+        activeTool = tool;
+        document.querySelectorAll('#tools-e1 .interactive-btn').forEach(b => b.classList.remove('active-tool'));
+        if(tool) {
+            document.getElementById(`tool-${tool}`).classList.add('active-tool');
+        }
+    }
+
+    function interactTube(num) {
+        const idx = num - 1;
+
+        if (activeTool === 'cr') {
+            if (tubeMetals[idx]) return;
+            tubeMetals[idx] = true;
+            document.getElementById(`metal${num}`).style.display = 'block';
+            
+            if(tubeMetals.every(v => v === true)) {
+                document.getElementById('tool-cr').disabled = true;
+                document.getElementById('tool-hcl').disabled = false;
+                selectTool('');
+                document.getElementById('exp1-guide').innerHTML = `<strong>Крок 2. Додавання кислот:</strong> Шматочки хрому додано. Тепер виберіть інструменти кислот (HCl, H<sub>2</sub>SO<sub>4</sub>, HNO<sub>3</sub>) та налийте їх у відповідні пробірки №1, №2 та №3.`;
+            }
+        } 
+        else if (activeTool === 'hcl' && num === 1) {
+            pourAcid(1, 'rgba(220,220,220,0.4)', '1: Cr + HCl (На холоді)');
+            document.getElementById('tool-hcl').disabled = true;
+            document.getElementById('tool-h2so4').disabled = false;
+            selectTool('');
+        } 
+        else if (activeTool === 'h2so4' && num === 2) {
+            pourAcid(2, 'rgba(220,220,220,0.4)', '2: Cr + H<sub>2</sub>SO<sub>4</sub> (На холоді)');
+            document.getElementById('tool-h2so4').disabled = true;
+            document.getElementById('tool-hno3').disabled = false;
+            selectTool('');
+        } 
+        else if (activeTool === 'hno3' && num === 3) {
+            pourAcid(3, 'rgba(220,220,220,0.4)', '3: Cr + HNO<sub>3</sub> (Пасивація)');
+            document.getElementById('tool-hno3').disabled = true;
+            document.getElementById('tool-burn').disabled = false;
+            selectTool('');
+            document.getElementById('exp1-guide').innerHTML = `<strong>Крок 3. Нагрівання:</strong> На холоді змін немає через пасивацію. Оберіть інструмент <strong>"🔥 Запалити спиртівку та нагріти"</strong> для запуску процесу нагрівання пробірок.`;
+        } 
+        else if (activeTool === 'burn') {
+            if(!tubeAcids[0] || !tubeAcids[1] || !tubeAcids[2]) {
+                alert("Спочатку додайте всі кислоти!");
+                return;
+            }
+            runSequentialHeatingE1();
+        }
+    }
+
+    function pourAcid(num, color, text) {
+        tubeAcids[num-1] = true;
+        const liq = document.getElementById(`liq${num}`);
+        liq.style.height = '60%';
+        liq.style.backgroundColor = color;
+        document.getElementById(`t${num}-title`).innerHTML = text;
+    }
+
+    function createBubbles(id, density) {
+        const container = document.getElementById(id);
+        container.style.display = 'block';
+        container.innerHTML = '';
+        for(let i=0; i < density; i++) {
+            let b = document.createElement('div');
+            b.className = 'bubble';
+            let size = Math.random() * 5 + 3;
+            b.style.width = size + 'px';
+            b.style.height = size + 'px';
+            b.style.setProperty('--b-l', (Math.random() * 70 + 15) + '%');
+            b.style.animationDelay = (Math.random() * 0.8) + 's';
+            container.appendChild(b);
+        }
+    }
+
+    function runSequentialHeatingE1() {
+        document.getElementById('tool-burn').disabled = true;
+        selectTool('');
+
+        // Нагріваємо Пробірку №1
+        moveLampToTube('lamp1', 'w1', true);
+        setTimeout(() => {
+            createBubbles('bub1', 22);
+            document.getElementById('liq1').style.backgroundColor = 'rgba(76, 175, 80, 0.6)'; 
+            document.getElementById(`t1-title`).innerHTML = "1: Cr + HCl + t°<br>(Інтенсивне виділення H<sub>2</sub>↑)";
+        }, 1500);
+
+        // Переносимо лапму під Пробірку №2
+        setTimeout(() => {
+            moveLampToTube('lamp1', 'w2', true);
+        }, 3500);
+
+        setTimeout(() => {
+            createBubbles('bub2', 22);
+            document.getElementById('liq2').style.backgroundColor = 'rgba(76, 175, 80, 0.6)'; 
+            document.getElementById(`t2-title`).innerHTML = "2: Cr + H<sub>2</sub>SO<sub>4</sub> + t°<br>(Інтенсивне виділення H<sub>2</sub>↑)";
+        }, 5000);
+
+        // Переносимо лапму під Пробірку №3
+        setTimeout(() => {
+            moveLampToTube('lamp1', 'w3', true);
+        }, 7000);
+
+        setTimeout(() => {
+            document.getElementById(`t3-title`).innerHTML = "3: Cr + HNO<sub>3</sub> + t°<br>(Пасивний стан, газ НЕ виділяється)";
+            document.getElementById('fire1').style.display = 'none';
+            document.getElementById('lamp1').style.display = 'none';
+            
+            document.getElementById('q-box-e1').style.display = 'block';
+            document.getElementById('exp1-guide').innerHTML = `<strong>Крок 4. Контроль знань:</strong> Послідовне нагрівання завершено. Оцініть процеси у штативі та дайте відповідь на запитання.`;
+        }, 8500);
+    }
+
+    // --- ДОСЛІД 2 ---
+    function selectTool2(tool) {
+        activeTool2 = tool;
+        document.querySelectorAll('#tools-e2 .interactive-btn').forEach(b => b.classList.remove('active-tool'));
+        if(tool) {
+            document.getElementById(`tool-${tool}`).classList.add('active-tool');
+        }
+    }
+
+    function interactTube2(num) {
+        const idx = num - 1;
+        
+        if(activeTool2 === 'ki') {
+            if(kiAdded[idx]) return;
+            kiAdded[idx] = true;
+
+            if(num === 1) {
+                document.getElementById('e2-liq1').style.backgroundColor = 'rgba(122, 63, 11, 0.85)'; 
+                document.getElementById('e2-t1-title').innerHTML = "1: K<sub>2</sub>Cr<sub>2</sub>O<sub>7</sub> + KI<br>(Миттєва реакція на холоді)";
+            } else if(num === 2) {
+                document.getElementById('e2-t2-title').innerHTML = "2: Na<sub>2</sub>MoO<sub>4</sub> + KI<br>(На холоді без змін)";
+            } else if(num === 3) {
+                document.getElementById('e2-t3-title').innerHTML = "3: Na<sub>2</sub>WO<sub>4</sub> + KI<br>(На холоді без змін)";
+            }
+
+            if(kiAdded.every(v => v === true)) {
+                document.getElementById('tool-ki').disabled = true;
+                document.getElementById('tool-boil').disabled = false;
+                selectTool2('');
+                document.getElementById('exp2-guide').innerHTML = `<strong>Крок 2 (Нагрівання солей):</strong> Активуйте інструмент <strong>"🔥 Взяти спиртівку"</strong> і клікніть спочатку на пробірку №2, а потім на пробірку №3 для їх нагрівання.`;
+            }
+        }
+        else if(activeTool2 === 'boil') {
+            if(num === 1) {
+                alert("Пробірка №1 вже зреагувала на холоді, нагрійте пробірки №2 або №3!");
+                return;
+            }
+            
+            if(num === 2 && !e2Heated[0]) {
+                e2Heated[0] = true;
+                moveLampToTube('lamp2', 'e2-w2', true);
+                document.getElementById('exp2-guide').innerHTML = `<em>Нагріваємо розчин Na<sub>2</sub>MoO<sub>4</sub>... Чекайте закипання.</em>`;
+                
+                setTimeout(() => {
+                    document.getElementById('e2-liq2').style.backgroundColor = 'rgba(34, 85, 143, 0.85)'; 
+                    document.getElementById('e2-t2-title').innerHTML = "2: Na<sub>2</sub>MoO<sub>4</sub> + KI + t°<br>(Відновлення до молібденової сині)";
+                    checkE2HeatingStatus();
+                }, 3000);
+            } 
+            else if(num === 3 && !e2Heated[1]) {
+                if(!e2Heated[0]) {
+                    alert("Проведіть дослідження послідовно: спочатку нагрійте пробірку №2!");
+                    return;
+                }
+                e2Heated[1] = true;
+                moveLampToTube('lamp2', 'e2-w3', true);
+                document.getElementById('exp2-guide').innerHTML = `<em>Нагріваємо розчин Na<sub>2</sub>WO<sub>4</sub>... Чекайте закипання.</em>`;
+                
+                setTimeout(() => {
+                    document.getElementById('e2-t3-title').innerHTML = "3: Na<sub>2</sub>WO<sub>4</sub> + KI + t°<br>(Стійкий, змін НЕМАЄ)";
+                    document.getElementById('fire2').style.display = 'none';
+                    document.getElementById('lamp2').style.display = 'none';
+                    checkE2HeatingStatus();
+                }, 3000);
+            }
+        }
+    }
+
+    function checkE2HeatingStatus() {
+        if(e2Heated[0] && !e2Heated[1]) {
+            document.getElementById('exp2-guide').innerHTML = `<strong>Крок 3:</strong> Тепер клікніть на <strong>Пробірку №3</strong>, щоб перенести спиртівку та перевірити стійкість вольфрамату до відновлення.`;
+        }
+        else if(e2Heated[0] && e2Heated[1]) {
+            document.getElementById('tool-boil').disabled = true;
+            selectTool2('');
+            document.getElementById('q-box-e2').style.display = 'block';
+            document.getElementById('exp2-guide').innerHTML = `<strong>Крок 4:</strong> Експеримент завершено. Проаналізуйте стійкість солей та оберіть висновок.`;
+        }
+    }
+
+    function submitExp1() {
+        const val = document.getElementById('ans-e1').value;
+        if(!val) {
+            alert("Будь ласка, дайте відповідь на запитання!");
+            return;
+        }
+        if(val === 'correct') score += 1;
+
+        document.getElementById('scr-exp1').classList.remove('active');
+        document.getElementById('scr-exp2').classList.add('active');
+        setProgress(66);
+    }
+
+    function submitExp2() {
+        const val = document.getElementById('ans-e2').value;
+        if(!val) {
+            alert("Будь ласка, оберіть підсумковий висновок!");
+            return;
+        }
+        if(val === 'correct') score += 1;
+
+        document.getElementById('scr-exp2').classList.remove('active');
+        document.getElementById('scr-report').classList.add('active');
+        setProgress(100);
+
+        generateFinalReport();
+    }
+
+    function generateFinalReport() {
+        const now = new Date().toLocaleString();
+        let r = `========================================================================\n`;
+        r += `              ЕЛЕКТРОННИЙ ЗВІТ З ЛАБОРАТОРНОЇ РОБОТИ № 12               \n`;
+        r += `========================================================================\n`;
+        r += `Виконавець (студент): ${currentStudent}\n`;
+        r += `Дата виконання сесії: ${now}\n`;
+        r += `Оцінка за теоретичний контроль: ${score} з 2 правильних відповідей.\n`;
+        r += `------------------------------------------------------------------------\n`;
+        r += `ХІМІЗМ ТА ОБҐРУНТУВАННЯ ДОСЛІДЖЕНИХ ПРОЦЕСІВ:\n\n`;
+        r += `1. Взаємодія хрому з кислотами (Дослід 1):\n`;
+        r += `   - На холоді хром стійкий до дії хлоридної, сульфатної та нітратної\n`;
+        r += `     кислот через утворення захисної оксидної плівки (пасивація).\n`;
+        r += `   - При послідовному піднесенні пальника й нагріванні в HCl та H2SO4\n`;
+        r += `     плівка руйнується, йде бурхливе виділення водню (H2↑), а розчин\n`;
+        r += `     стає зеленим завдяки сольватованим іонам Cr(3+):\n`;
+        r += `     2Cr + 6HCl =(t)=> 2CrCl3 + 3H2↑\n`;
+        r += `     2Cr + 3H2SO4(розб) =(t)=> Cr2(SO4)3 + 3H2↑\n`;
+        r += `   - У нітратній кислоті хром стійко пасивується, тому навіть під дією\n`;
+        r += `     полум'я спиртівки реакція не відбувається і газ НЕ виділяється.\n\n`;
+        r += `2. Порівняння окисних властивостей сполук Cr(VI), Mo(VI) і W(VI) (Дослід 2):\n`;
+        r += `   - Сполуки Cr(VI) є сильними окисниками й миттєво реагують з KI на холоді,\n`;
+        r += `     забарвлюючи розчин у темно-бурий колір через виділення вільного йоду (I2):\n`;
+        r += `     Cr2O7(2-) + 6I(-) + 14H(+) ===> 2Cr(3+) + 3I2 + 7H2O\n`;
+        r += `   - Сполуки Mo(VI) стійкіші, тому реакція відновлення відбувається лише\n`;
+        r += `     при безпосередньому кип'ятінні суміші над спиртівкою (утворюється синя синь).\n`;
+        r += `   - Сполуки W(VI) мають максимальну стабільність ступеня окиснення +6,\n`;
+        r += `     тому при нагріванні розчин залишається прозорим (реакція з KI не йде).\n\n`;
+        r += `ВИСНОВОК: У підгрупі хрому (VIB група) зі збільшенням атомної маси елемента\n`;
+        r += `стійкість його вищого ступеня окиснення (+6) закономірно зростає, а окисна\n`;
+        r += `здатність сполук Е(VI) відповідно послаблюється від хрому до вольфраму.\n`;
+        r += `========================================================================\n`;
+
+        document.getElementById('report-text').innerText = r;
+    }
+</script>
+
+</body>
+</html>
